@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  servidor:
+    build:
+      context: .
+      dockerfile: dockerfile.servidor.dockerfile
+    container_name: Gato_Servidor
+    networks:
+      - red_gato
+    ports:
+      - "65432:65432"
+      
+  cliente:
+    build:
+      context: .
+      dockerfile: dockerfile.cliente.dockerfile
+    container_name: Gato_Cliente
+    networks:
+      - red_gato
+    tty: true 
+    stdin_open: true
+    command: bash
+
+networks:
+  red_gato:
