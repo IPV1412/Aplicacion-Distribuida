@@ -95,7 +95,7 @@ Aplicacion-Distribuida/
 
 ## 📄 Licencia
 
-Este proyecto aprobado por mi :).
+THE GOAL OFF ALL LIFE IS DEATH.
 
 ---
 
