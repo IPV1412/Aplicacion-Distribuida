@@ -9,17 +9,30 @@ services:
       - red_gato
     ports:
       - "65432:65432"
-      
-  cliente:
+
+  cliente_x:
     build:
       context: .
       dockerfile: dockerfile.cliente.dockerfile
-    container_name: Gato_Cliente
+    container_name: Gato_Cliente_1
     networks:
       - red_gato
-    tty: true 
+    tty: true
     stdin_open: true
-    command: bash
+    command: >
+      bash -c "python Gato_Cliente.py"
+
+  cliente_o:
+    build:
+      context: .
+      dockerfile: dockerfile.cliente.dockerfile
+    container_name: Gato_Cliente_2
+    networks:
+      - red_gato
+    tty: true
+    stdin_open: true
+    command: >
+      bash -c "python Gato_Cliente.py"
 
 networks:
   red_gato:
