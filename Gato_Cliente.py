@@ -2,6 +2,11 @@ import socket
 import json
 import sys
 
+# Verificar si el entorno es interactivo
+if not sys.stdin.isatty() or not sys.stdout.isatty():
+    print("Este script requiere una terminal interactiva para funcionar.")
+    sys.exit(1)
+
 HOST = 'Gato_Servidor'
 PORT = 65432
 
@@ -17,38 +22,50 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
     try:
         client_socket.connect((HOST, PORT))
         print("Conectado al servidor.")
-        
-        # Recibir el tipo de jugador asignado por el servidor
-        data = json.loads(client_socket.recv(1024).decode())
-        player_type = data.get("player_type", None)
-        if not player_type:
-            print(data["message"])
-            sys.exit(1)
-        
-        print(f"Has sido asignado como jugador '{player_type}'.")
+    except ConnectionRefusedError:
+        print("No se pudo conectar al servidor. Asegúrate de que el servidor esté ejecutándose.")
+        sys.exit(1)
+    
+    while True:
+        try:
+            print("\nTurno de jugar.")
+            position = int(input("Ingresa una posición (0-8): "))
+            player = input("¿Eres 'X' o 'O'? ").strip().upper()
 
-        while True:
-            print("\nEsperando tu turno...")
-            response = json.loads(client_socket.recv(1024).decode())
-            
-            if response["status"] == "NOT_YOUR_TURN":
+            # Validar entrada
+            if position < 0 or position > 8:
+                print("La posición debe estar entre 0 y 8.")
                 continue
-            elif response["status"] == "GAME_OVER":
-                print("El juego ya terminó.")
-                break
-            elif response["status"] == "WIN":
+            if player not in ["X", "O"]:
+                print("El jugador debe ser 'X' o 'O'.")
+                continue
+
+            message = {
+                "type": "MOVE",
+                "position": position,
+                "player": player
+            }
+            client_socket.send(json.dumps(message).encode())
+
+            response = json.loads(client_socket.recv(1024).decode())
+            print_board(response["board"])
+
+            if response["status"] == "WIN":
                 print(f"¡El jugador {response['winner']} ha ganado!")
                 break
             elif response["status"] == "DRAW":
                 print("¡Es un empate!")
                 break
-            
-            print_board(response["board"])
-
-            position = int(input("Ingresa una posición (0-8): "))
-            message = {"type": "MOVE", "position": position, "player": player_type}
-            client_socket.send(json.dumps(message).encode())
-    except KeyboardInterrupt:
-        print("\nDesconexión del cliente.")
-    except Exception as e:
-        print(f"Error en el cliente: {e}")
+            elif response["status"] == "INVALID":
+                print("Movimiento inválido. Inténtalo de nuevo.")
+            elif response["status"] == "GAME_OVER":
+                print("El juego ya terminó. Por favor, reinicia el cliente.")
+                break
+        except ValueError:
+            print("Entrada no válida. Por favor, ingresa un número para la posición.")
+        except KeyboardInterrupt:
+            print("\nJuego terminado por el jugador.")
+            break
+        except ConnectionResetError:
+            print("El servidor cerró la conexión. Terminando el juego.")
+            break
