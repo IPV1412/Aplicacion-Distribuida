@@ -12,7 +12,7 @@ def print_board(board):
         if i < 6:
             print("--+---+--")
 
-# Iniciar comunicación con el servidor
+# Inicia la comunicación con el servidor
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
     try:
         client_socket.connect((HOST, PORT))
@@ -28,26 +28,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         print(f"Has sido asignado como jugador '{player_type}'.")
 
         while True:
-            print("\nEsperando tu turno...")
+            print_board(data.get("board", [" " for _ in range(9)]))
+            position = int(input(f"Jugador {player_type}, ingresa una posición (0-8): "))
+            message = {"type": "MOVE", "position": position, "player": player_type}
+            client_socket.send(json.dumps(message).encode())
+
             response = json.loads(client_socket.recv(1024).decode())
-            
-            if response["status"] == "NOT_YOUR_TURN":
-                continue
-            elif response["status"] == "GAME_OVER":
-                print("El juego ya terminó.")
-                break
-            elif response["status"] == "WIN":
+            print_board(response["board"])
+
+            if response["status"] == "WIN":
                 print(f"¡El jugador {response['winner']} ha ganado!")
                 break
             elif response["status"] == "DRAW":
                 print("¡Es un empate!")
                 break
-            
-            print_board(response["board"])
-
-            position = int(input("Ingresa una posición (0-8): "))
-            message = {"type": "MOVE", "position": position, "player": player_type}
-            client_socket.send(json.dumps(message).encode())
+            elif response["status"] == "INVALID":
+                print("Movimiento inválido. Inténtalo de nuevo.")
+            elif response["status"] == "NOT_YOUR_TURN":
+                print("No es tu turno. Espera al otro jugador.")
     except KeyboardInterrupt:
         print("\nDesconexión del cliente.")
     except Exception as e:
