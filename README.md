@@ -1,8 +1,21 @@
 # Juego del Gato Distribuido 🐱
 
 Este proyecto implementa un juego del Gato (Tres en Raya) distribuido utilizando contenedores Docker.
+## Branch Main:
+La arquitectura de 2 contenedores: Un servidor y un cliente
+Desarrolla mecánicas de juego distribuido
+Implementa un protocolo de comunicación de estado y acciones
+Gestionar interacciones en tiempo real entre cliente y servidor
+
+## Branch Gato 2 clientes:
 La arquitectura consta de tres contenedores: un servidor y dos clientes (X y O). 
 El servidor asigna automáticamente los roles de los jugadores y controla el estado del juego.
+Las instrucciones para esta Branch son similares
+
+## Branch Gato:
+El juego base, en el que base este proyecto
+Juego de Gato desarrollado en python
+
 
 ## 🛠 Requisitos Previos
 
@@ -44,7 +57,7 @@ docker-compose build
    ```bash
    docker ps
    ```
-   Deberías ver tres contenedores activos: `Gato_Servidor`, `Gato_Cliente_1` y `Gato_Cliente_2`.
+   Deberías ver tres contenedores activos: `Gato_Servidor`, `Gato_Cliente`
 
 3. Revisa los logs del servidor para confirmar las conexiones:
    ```bash
@@ -55,9 +68,13 @@ docker-compose build
 
 ## 🕹 Cómo Jugar
 
-1. El servidor asignará automáticamente los roles de jugador (`X` y `O`) al primer y segundo cliente que se conecten.
-2. En la terminal de cada cliente, ingresa la posición donde deseas jugar (0-8) y observa el tablero actualizado.
-3. El juego terminará automáticamente si hay un ganador (`WIN`) o un empate (`DRAW`).
+1. El servidor se comunicara automáticamente con el jugador (`X` ó `O`).
+2. En la terminal del cliente inicia el juego con el siguiente comando:
+    ```bash
+   python3 Gato_Cliente.py
+   ```
+3. Ingresa la posición donde deseas jugar (0-8) y observa el tablero actualizado.
+4. El juego terminará automáticamente si hay un ganador (`WIN`) o un empate (`DRAW`).
 
 ---
 
